@@ -13,7 +13,7 @@ const Index = () => {
       id: 1,
       title: "Beginner Jive Basics",
       description: "Master the fundamental steps and rhythms",
-      price: "$29",
+      price: "₹2,499",
       duration: "2 hours",
       level: "Beginner",
       thumbnail: instructorImage,
@@ -22,7 +22,7 @@ const Index = () => {
       id: 2,
       title: "Intermediate Swing Moves",
       description: "Advanced techniques and partner connection",
-      price: "$39",
+      price: "₹3,299",
       duration: "3 hours", 
       level: "Intermediate",
       thumbnail: instructorImage,
@@ -31,7 +31,7 @@ const Index = () => {
       id: 3,
       title: "Competition Style Jive",
       description: "Professional competition choreography",
-      price: "$49",
+      price: "₹4,199",
       duration: "4 hours",
       level: "Advanced",
       thumbnail: instructorImage,
@@ -42,14 +42,14 @@ const Index = () => {
     {
       id: 1,
       name: "Dance Planet Hoodie",
-      price: "$59",
+      price: "₹4,999",
       image: hoodieImage,
       description: "Premium black hoodie with logo"
     },
     {
       id: 2,
       name: "Electric Blue Tee",
-      price: "$29",
+      price: "₹2,499",
       image: tshirtImage,
       description: "Comfortable dance t-shirt"
     },
