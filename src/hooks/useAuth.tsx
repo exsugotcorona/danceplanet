@@ -51,7 +51,9 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   const signUp = async (email: string, password: string, displayName?: string) => {
+    console.log('signUp called with:', { email, displayName });
     const redirectUrl = `${window.location.origin}/`;
+    console.log('Using redirect URL:', redirectUrl);
     
     const { error } = await supabase.auth.signUp({
       email,
@@ -63,6 +65,7 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
         }
       }
     });
+    console.log('Supabase signUp result:', { error });
     return { error };
   };
 

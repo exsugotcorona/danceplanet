@@ -76,16 +76,19 @@ const Auth = () => {
   };
 
   const handleSignUp = async (data: SignUpFormData) => {
+    console.log('Attempting to sign up with:', { email: data.email, displayName: data.displayName });
     setLoading(true);
     const { error } = await signUp(data.email, data.password, data.displayName);
     
     if (error) {
+      console.error('Sign up error:', error);
       toast({
         title: 'Error creating account',
         description: error.message,
         variant: 'destructive',
       });
     } else {
+      console.log('Sign up successful');
       toast({
         title: 'Account created!',
         description: 'Please check your email to verify your account.',

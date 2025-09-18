@@ -51,6 +51,12 @@ const Home = () => {
               </Link>
             </Button>
             <Button variant="outline" size="hero" className="bg-white/10 border-white/30 text-white hover:bg-white/20" asChild>
+              <Link to="/auth">
+                <Users className="mr-2" />
+                Sign Up Now
+              </Link>
+            </Button>
+            <Button variant="outline" size="hero" className="bg-white/10 border-white/30 text-white hover:bg-white/20" asChild>
               <Link to="/shop">
                 <ShoppingBag className="mr-2" />
                 Shop the Merch
