@@ -1,12 +1,16 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Play, ShoppingBag } from "lucide-react";
+import { Menu, X, Play, ShoppingBag, User, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
+import { useToast } from "@/hooks/use-toast";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
+  const { user, signOut, loading } = useAuth();
+  const { toast } = useToast();
 
   const navigation = [
     { name: "Home", href: "/" },
@@ -17,6 +21,23 @@ const Navbar = () => {
   ];
 
   const isActive = (path: string) => location.pathname === path;
+
+  const handleSignOut = async () => {
+    const { error } = await signOut();
+    if (error) {
+      toast({
+        title: 'Error signing out',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } else {
+      toast({
+        title: 'Signed out successfully',
+        description: 'See you on the dance floor soon!',
+      });
+    }
+    setIsOpen(false);
+  };
 
   return (
     <nav className="fixed top-0 w-full bg-background/95 backdrop-blur-md border-b border-border/50 z-50">
@@ -50,18 +71,45 @@ const Navbar = () => {
 
           {/* Desktop CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="ghost" size="sm" asChild>
-              <Link to="/courses">
-                <Play className="w-4 h-4 mr-2" />
-                Learn
-              </Link>
-            </Button>
-            <Button variant="electric" size="sm" asChild>
-              <Link to="/shop">
-                <ShoppingBag className="w-4 h-4 mr-2" />
-                Shop
-              </Link>
-            </Button>
+            {!loading && (
+              user ? (
+                <div className="flex items-center space-x-3">
+                  <div className="flex items-center space-x-2 text-sm">
+                    <div className="w-8 h-8 bg-electric/10 rounded-full flex items-center justify-center">
+                      <User className="w-4 h-4 text-electric" />
+                    </div>
+                    <span className="text-muted-foreground">
+                      Welcome back!
+                    </span>
+                  </div>
+                  <Button variant="ghost" size="sm" onClick={handleSignOut}>
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to="/courses">
+                      <Play className="w-4 h-4 mr-2" />
+                      Learn
+                    </Link>
+                  </Button>
+                  <Button variant="outline" size="sm" asChild>
+                    <Link to="/auth">
+                      <User className="w-4 h-4 mr-2" />
+                      Sign In
+                    </Link>
+                  </Button>
+                  <Button variant="electric" size="sm" asChild>
+                    <Link to="/shop">
+                      <ShoppingBag className="w-4 h-4 mr-2" />
+                      Shop
+                    </Link>
+                  </Button>
+                </>
+              )
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -97,18 +145,43 @@ const Navbar = () => {
                 </Link>
               ))}
               <div className="px-3 py-2 space-y-2">
-                <Button variant="ghost" size="sm" className="w-full justify-start" asChild>
-                  <Link to="/courses" onClick={() => setIsOpen(false)}>
-                    <Play className="w-4 h-4 mr-2" />
-                    Learn Dance
-                  </Link>
-                </Button>
-                <Button variant="electric" size="sm" className="w-full justify-start" asChild>
-                  <Link to="/shop" onClick={() => setIsOpen(false)}>
-                    <ShoppingBag className="w-4 h-4 mr-2" />
-                    Shop Now
-                  </Link>
-                </Button>
+                {!loading && (
+                  user ? (
+                    <>
+                      <div className="flex items-center space-x-2 px-3 py-2">
+                        <div className="w-8 h-8 bg-electric/10 rounded-full flex items-center justify-center">
+                          <User className="w-4 h-4 text-electric" />
+                        </div>
+                        <span className="text-sm text-muted-foreground">Welcome back!</span>
+                      </div>
+                      <Button variant="ghost" size="sm" className="w-full justify-start" onClick={handleSignOut}>
+                        <LogOut className="w-4 h-4 mr-2" />
+                        Sign Out
+                      </Button>
+                    </>
+                  ) : (
+                    <>
+                      <Button variant="ghost" size="sm" className="w-full justify-start" asChild>
+                        <Link to="/courses" onClick={() => setIsOpen(false)}>
+                          <Play className="w-4 h-4 mr-2" />
+                          Learn Dance
+                        </Link>
+                      </Button>
+                      <Button variant="outline" size="sm" className="w-full justify-start" asChild>
+                        <Link to="/auth" onClick={() => setIsOpen(false)}>
+                          <User className="w-4 h-4 mr-2" />
+                          Sign In
+                        </Link>
+                      </Button>
+                      <Button variant="electric" size="sm" className="w-full justify-start" asChild>
+                        <Link to="/shop" onClick={() => setIsOpen(false)}>
+                          <ShoppingBag className="w-4 h-4 mr-2" />
+                          Shop Now
+                        </Link>
+                      </Button>
+                    </>
+                  )
+                )}
               </div>
             </div>
           </div>
