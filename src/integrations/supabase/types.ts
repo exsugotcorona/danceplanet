@@ -14,6 +14,68 @@ export type Database = {
   }
   public: {
     Tables: {
+      orders: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          customer_email: string | null
+          customer_name: string | null
+          id: string
+          instamojo_payment_id: string | null
+          instamojo_payment_request_id: string | null
+          item_id: string
+          item_name: string
+          item_type: string
+          payment_url: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          id?: string
+          instamojo_payment_id?: string | null
+          instamojo_payment_request_id?: string | null
+          item_id: string
+          item_name: string
+          item_type: string
+          payment_url?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          customer_email?: string | null
+          customer_name?: string | null
+          id?: string
+          instamojo_payment_id?: string | null
+          instamojo_payment_request_id?: string | null
+          item_id?: string
+          item_name?: string
+          item_type?: string
+          payment_url?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null

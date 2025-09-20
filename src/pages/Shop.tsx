@@ -5,6 +5,7 @@ import { Heart, ShoppingBag, Star, Truck, Shield, RotateCcw, Zap } from "lucide-
 import { useState } from "react";
 import hoodieImage from "@/assets/hoodie-black.jpg";
 import tshirtImage from "@/assets/tshirt-blue.jpg";
+import PaymentButton from "@/components/PaymentButton";
 
 const Shop = () => {
   const [favorites, setFavorites] = useState<number[]>([]);
@@ -266,10 +267,17 @@ const Shop = () => {
                       <span className="text-xl font-bold text-electric">{item.price}</span>
                       <span className="text-sm text-muted-foreground line-through">{item.originalPrice}</span>
                     </div>
-                    <Button variant="electric" size="sm" className="group">
+                    <PaymentButton
+                      itemType="product"
+                      itemId={item.id.toString()}
+                      itemName={item.name}
+                      amount={parseFloat(item.price.replace('₹', '').replace(',', ''))}
+                      variant="electric"
+                      className="group text-sm px-3 py-1 h-8"
+                    >
                       <ShoppingBag className="w-4 h-4 mr-1 group-hover:scale-110 transition-transform" />
-                      Add to Cart
-                    </Button>
+                      Buy Now
+                    </PaymentButton>
                   </div>
                 </CardContent>
               </Card>
