@@ -71,7 +71,7 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log('Instamojo payload:', instamojoPayload);
 
-    const instamojoResponse = await fetch('https://www.instamojo.com/api/1.1/payment-requests/', {
+    const instamojoResponse = await fetch('https://test.instamojo.com/api/1.1/payment-requests/', {
       method: 'POST',
       headers: {
         'X-Api-Key': instamojoApiKey,

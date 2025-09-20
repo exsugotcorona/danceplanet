@@ -32,7 +32,7 @@ const handler = async (req: Request): Promise<Response> => {
     // Verify payment with Instamojo
     const paymentId = webhookData.payment_id;
     
-    const verifyResponse = await fetch(`https://www.instamojo.com/api/1.1/payments/${paymentId}/`, {
+    const verifyResponse = await fetch(`https://test.instamojo.com/api/1.1/payments/${paymentId}/`, {
       method: 'GET',
       headers: {
         'X-Api-Key': instamojoApiKey,
