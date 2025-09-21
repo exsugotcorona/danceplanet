@@ -50,7 +50,17 @@ const handler = async (req: Request): Promise<Response> => {
 
     const payment = verifyData.payment;
     const paymentRequestId = payment.payment_request;
-    const status = payment.status === 'Credit' ? 'completed' : 'failed';
+    let status = 'failed';
+    
+    if (payment.status === 'Credit') {
+      status = 'completed';
+    } else if (payment.status === 'Failed') {
+      status = 'failed';
+    } else if (payment.status === 'Pending') {
+      status = 'pending';
+    } else if (payment.status === 'Cancelled') {
+      status = 'cancelled';
+    }
 
     // Update order status in database
     const { data: updatedOrder, error: updateError } = await supabaseClient
