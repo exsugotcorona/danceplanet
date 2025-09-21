@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Star, Play, Clock, Users, Zap, BookOpen } from "lucide-react";
 import instructorImage from "@/assets/instructor-1.jpg";
-import PaymentButton from "@/components/PaymentButton";
+import CourseButton from "@/components/CourseButton";
 
 const Courses = () => {
   const courses = [
@@ -190,16 +190,15 @@ const Courses = () => {
                       <span className="text-2xl font-bold text-electric">{course.price}</span>
                       <span className="text-sm text-muted-foreground line-through">{course.originalPrice}</span>
                     </div>
-                    <PaymentButton
-                      itemType="course"
-                      itemId={course.id.toString()}
-                      itemName={course.title}
+                    <CourseButton
+                      courseId={course.id.toString()}
+                      courseName={course.title}
                       amount={parseFloat(course.price.replace('₹', '').replace(',', ''))}
                       className="group"
                     >
                       Enroll Now
                       <Zap className="w-4 h-4 ml-1 group-hover:scale-110 transition-transform" />
-                    </PaymentButton>
+                    </CourseButton>
                   </div>
                 </CardContent>
               </Card>
