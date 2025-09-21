@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Play, ShoppingBag, User, LogOut } from "lucide-react";
+import { Menu, X, Play, ShoppingBag, User, LogOut, Package } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
@@ -73,20 +73,26 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-4">
             {!loading && (
               user ? (
-                <div className="flex items-center space-x-3">
-                  <div className="flex items-center space-x-2 text-sm">
-                    <div className="w-8 h-8 bg-electric/10 rounded-full flex items-center justify-center">
-                      <User className="w-4 h-4 text-electric" />
-                    </div>
-                    <span className="text-muted-foreground">
-                      Welcome back!
-                    </span>
-                  </div>
-                  <Button variant="ghost" size="sm" onClick={handleSignOut}>
-                    <LogOut className="w-4 h-4 mr-2" />
-                    Sign Out
-                  </Button>
-                </div>
+                 <div className="flex items-center space-x-3">
+                   <div className="flex items-center space-x-2 text-sm">
+                     <div className="w-8 h-8 bg-electric/10 rounded-full flex items-center justify-center">
+                       <User className="w-4 h-4 text-electric" />
+                     </div>
+                     <span className="text-muted-foreground">
+                       Welcome back!
+                     </span>
+                   </div>
+                   <Button variant="ghost" size="sm" asChild>
+                     <Link to="/my-purchases">
+                       <Package className="w-4 h-4 mr-2" />
+                       My Purchases
+                     </Link>
+                   </Button>
+                   <Button variant="ghost" size="sm" onClick={handleSignOut}>
+                     <LogOut className="w-4 h-4 mr-2" />
+                     Sign Out
+                   </Button>
+                 </div>
               ) : (
                 <>
                   <Button variant="ghost" size="sm" asChild>
@@ -153,11 +159,17 @@ const Navbar = () => {
                           <User className="w-4 h-4 text-electric" />
                         </div>
                         <span className="text-sm text-muted-foreground">Welcome back!</span>
-                      </div>
-                      <Button variant="ghost" size="sm" className="w-full justify-start" onClick={handleSignOut}>
-                        <LogOut className="w-4 h-4 mr-2" />
-                        Sign Out
-                      </Button>
+                       </div>
+                       <Button variant="ghost" size="sm" className="w-full justify-start" asChild>
+                         <Link to="/my-purchases" onClick={() => setIsOpen(false)}>
+                           <Package className="w-4 h-4 mr-2" />
+                           My Purchases
+                         </Link>
+                       </Button>
+                       <Button variant="ghost" size="sm" className="w-full justify-start" onClick={handleSignOut}>
+                         <LogOut className="w-4 h-4 mr-2" />
+                         Sign Out
+                       </Button>
                     </>
                   ) : (
                     <>
