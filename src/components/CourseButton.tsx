@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Play, Zap } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -93,9 +94,11 @@ const CourseButton = ({ courseId, courseName, amount, className, children }: Cou
 
   if (isPurchased) {
     return (
-      <Button variant="electric" className={className}>
-        <Play className="w-4 h-4 mr-2" />
-        Start Learning
+      <Button variant="electric" className={className} asChild>
+        <Link to={`/course/${courseId}`}>
+          <Play className="w-4 h-4 mr-2" />
+          Start Learning
+        </Link>
       </Button>
     );
   }
