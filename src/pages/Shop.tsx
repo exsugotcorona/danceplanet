@@ -1,14 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Heart, ShoppingBag, Star, Truck, Shield, RotateCcw, Zap } from "lucide-react";
+import { Heart, ShoppingCart, ShoppingBag, Star, Truck, Shield, RotateCcw, Zap } from "lucide-react";
 import { useState } from "react";
 import hoodieImage from "@/assets/hoodie-black.jpg";
 import tshirtImage from "@/assets/tshirt-blue.jpg";
-import PaymentButton from "@/components/PaymentButton";
+import AddToCartDialog from "@/components/AddToCartDialog";
 
 const Shop = () => {
   const [favorites, setFavorites] = useState<number[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<any>(null);
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const toggleFavorite = (id: number) => {
     setFavorites(prev => 
@@ -16,6 +18,11 @@ const Shop = () => {
         ? prev.filter(fav => fav !== id)
         : [...prev, id]
     );
+  };
+
+  const handleAddToCart = (product: any) => {
+    setSelectedProduct(product);
+    setDialogOpen(true);
   };
 
   const merchandise = [
@@ -267,17 +274,14 @@ const Shop = () => {
                       <span className="text-xl font-bold text-electric">{item.price}</span>
                       <span className="text-sm text-muted-foreground line-through">{item.originalPrice}</span>
                     </div>
-                    <PaymentButton
-                      itemType="product"
-                      itemId={item.id.toString()}
-                      itemName={item.name}
-                      amount={parseFloat(item.price.replace('₹', '').replace(',', ''))}
+                    <Button
                       variant="electric"
                       className="group text-sm px-3 py-1 h-8"
+                      onClick={() => handleAddToCart(item)}
                     >
-                      <ShoppingBag className="w-4 h-4 mr-1 group-hover:scale-110 transition-transform" />
-                      Buy Now
-                    </PaymentButton>
+                      <ShoppingCart className="w-4 h-4 mr-1 group-hover:scale-110 transition-transform" />
+                      Add to Cart
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -335,6 +339,14 @@ const Shop = () => {
           </div>
         </div>
       </section>
+
+      {selectedProduct && (
+        <AddToCartDialog
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          product={selectedProduct}
+        />
+      )}
     </div>
   );
 };

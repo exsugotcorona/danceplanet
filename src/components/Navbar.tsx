@@ -1,16 +1,19 @@
 import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Play, ShoppingBag, User, LogOut, Package } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Menu, X, Play, ShoppingBag, ShoppingCart, User, LogOut, Package } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
+import { useCart } from "@/contexts/CartContext";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const location = useLocation();
   const { user, signOut, loading } = useAuth();
   const { toast } = useToast();
+  const { totalItems } = useCart();
 
   const navigation = [
     { name: "Home", href: "/" },
@@ -71,6 +74,16 @@ const Navbar = () => {
 
           {/* Desktop CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
+            <Button variant="ghost" size="icon" className="relative" asChild>
+              <Link to="/cart">
+                <ShoppingCart className="w-5 h-5" />
+                {totalItems > 0 && (
+                  <Badge className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0 bg-electric text-white text-xs">
+                    {totalItems}
+                  </Badge>
+                )}
+              </Link>
+            </Button>
             {!loading && (
               user ? (
                  <div className="flex items-center space-x-3">
@@ -151,6 +164,17 @@ const Navbar = () => {
                 </Link>
               ))}
               <div className="px-3 py-2 space-y-2">
+                <Button variant="ghost" size="sm" className="w-full justify-start relative" asChild>
+                  <Link to="/cart" onClick={() => setIsOpen(false)}>
+                    <ShoppingCart className="w-4 h-4 mr-2" />
+                    Cart
+                    {totalItems > 0 && (
+                      <Badge className="ml-auto bg-electric text-white">
+                        {totalItems}
+                      </Badge>
+                    )}
+                  </Link>
+                </Button>
                 {!loading && (
                   user ? (
                     <>
