@@ -51,14 +51,12 @@ const Cart = () => {
 
       const { data, error } = await supabase.functions.invoke('create-payment', {
         body: {
-          amount: totalPrice,
-          currency: 'INR',
-          item_type: 'cart',
-          item_id: 'cart-' + Date.now(),
-          item_name: `Cart: ${itemsDescription}`,
-          customer_name: profile?.display_name || user.email?.split('@')[0] || 'Customer',
-          customer_email: user.email,
-          items: items,
+          amount: totalPrice >= 2999 ? totalPrice : totalPrice + 99,
+          itemType: 'product',
+          itemId: 'cart-' + Date.now(),
+          itemName: `Cart: ${itemsDescription}`,
+          customerName: profile?.display_name || user.email?.split('@')[0] || 'Customer',
+          customerEmail: user.email,
         },
       });
 
