@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
@@ -11,6 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 interface Purchase {
   id: string;
   item_type: string;
+  item_id: string;
   item_name: string;
   amount: number;
   currency: string;
@@ -203,9 +205,11 @@ const MyPurchases = () => {
                         {formatAmount(purchase.amount, purchase.currency)}
                       </div>
                       {purchase.status === 'completed' && purchase.item_type === 'course' && (
-                        <Button variant="electric" size="sm" className="w-full">
-                          <Play className="w-4 h-4 mr-2" />
-                          View Course
+                        <Button variant="electric" size="sm" className="w-full" asChild>
+                          <Link to={`/course/${purchase.item_id}`}>
+                            <Play className="w-4 h-4 mr-2" />
+                            View Course
+                          </Link>
                         </Button>
                       )}
                     </div>

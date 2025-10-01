@@ -4,34 +4,61 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, XCircle, Home, ShoppingBag, BookOpen } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
   const [status, setStatus] = useState<'loading' | 'success' | 'failed'>('loading');
   const { toast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
-    const paymentId = searchParams.get('payment_id');
-    const paymentRequestId = searchParams.get('payment_request_id');
-    const paymentStatus = searchParams.get('payment_status');
+    const updateOrderStatus = async () => {
+      const paymentId = searchParams.get('payment_id');
+      const paymentRequestId = searchParams.get('payment_request_id');
+      const paymentStatus = searchParams.get('payment_status');
 
-    console.log('Payment callback received:', { paymentId, paymentRequestId, paymentStatus });
+      console.log('Payment callback received:', { paymentId, paymentRequestId, paymentStatus });
 
-    if (paymentStatus === 'Credit') {
-      setStatus('success');
-      toast({
-        title: 'Payment Successful!',
-        description: 'Your order has been confirmed. Thank you for your purchase!',
-      });
-    } else {
-      setStatus('failed');
-      toast({
-        title: 'Payment Failed',
-        description: 'Your payment could not be processed. Please try again.',
-        variant: 'destructive',
-      });
-    }
-  }, [searchParams, toast]);
+      if (paymentStatus === 'Credit') {
+        // Update order status to completed
+        if (paymentRequestId && user) {
+          try {
+            const { error } = await supabase
+              .from('orders')
+              .update({ 
+                status: 'completed',
+                instamojo_payment_id: paymentId 
+              })
+              .eq('instamojo_payment_request_id', paymentRequestId)
+              .eq('user_id', user.id);
+
+            if (error) {
+              console.error('Error updating order:', error);
+            }
+          } catch (error) {
+            console.error('Error:', error);
+          }
+        }
+
+        setStatus('success');
+        toast({
+          title: 'Payment Successful!',
+          description: 'Your order has been confirmed. Thank you for your purchase!',
+        });
+      } else {
+        setStatus('failed');
+        toast({
+          title: 'Payment Failed',
+          description: 'Your payment could not be processed. Please try again.',
+          variant: 'destructive',
+        });
+      }
+    };
+
+    updateOrderStatus();
+  }, [searchParams, toast, user]);
 
   if (status === 'loading') {
     return (
