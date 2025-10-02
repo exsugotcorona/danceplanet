@@ -12,67 +12,21 @@ import { Play, Lock, CheckCircle, Clock, Users, Star } from 'lucide-react';
 
 // Course data - in a real app, this would come from your database
 const courseData = {
-  'beginner-fundamentals': {
-    id: 'beginner-fundamentals',
-    title: 'Dance Fundamentals',
-    description: 'Perfect for beginners who want to learn the basics of dance',
-    instructor: 'Sarah Johnson',
-    duration: '8 weeks',
+  'beginner-jive-basics': {
+    id: 'beginner-jive-basics',
+    title: 'Beginner Jive Basics',
+    description: 'Learn the fundamentals of Jive dance with easy-to-follow instructions',
+    instructor: 'Dance Master',
+    duration: '4 weeks',
     students: 1234,
-    rating: 4.9,
+    rating: 5.0,
     lessons: [
       {
         id: 1,
-        title: 'Introduction to Dance',
-        duration: '15:30',
-        videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
-        description: 'Welcome to the world of dance! In this introductory lesson, you\'ll learn about different dance styles and what to expect from this course.'
-      },
-      {
-        id: 2,
-        title: 'Basic Movements',
-        duration: '22:45',
-        videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4',
-        description: 'Learn the fundamental movements that form the foundation of all dance styles.'
-      },
-      {
-        id: 3,
-        title: 'Rhythm and Timing',
-        duration: '18:20',
-        videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
-        description: 'Understand how to move to the beat and develop your sense of rhythm.'
-      },
-      {
-        id: 4,
-        title: 'Basic Choreography',
-        duration: '25:15',
-        videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4',
-        description: 'Put it all together with your first simple dance routine.'
-      }
-    ]
-  },
-  'intermediate-techniques': {
-    id: 'intermediate-techniques',
-    title: 'Intermediate Techniques',
-    description: 'Take your dancing to the next level with advanced techniques',
-    instructor: 'Michael Chen',
-    duration: '10 weeks',
-    students: 892,
-    rating: 4.8,
-    lessons: [
-      {
-        id: 1,
-        title: 'Advanced Footwork',
-        duration: '20:30',
-        videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
-        description: 'Master complex footwork patterns and transitions.'
-      },
-      {
-        id: 2,
-        title: 'Expression and Style',
-        duration: '28:45',
-        videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_2mb.mp4',
-        description: 'Develop your personal style and learn to express emotions through dance.'
+        title: 'Jive Fundamentals',
+        duration: '10:00',
+        videoUrl: 'https://www.youtube.com/embed/kQ25jdxa_Rs',
+        description: 'Master the basic steps and movements of Jive dance.'
       }
     ]
   },
@@ -91,24 +45,6 @@ const courseData = {
         duration: '30:15',
         videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
         description: 'Learn to master intricate choreographic sequences.'
-      }
-    ]
-  },
-  'beginner-jive-basics': {
-    id: 'beginner-jive-basics',
-    title: 'Beginner Jive Basics',
-    description: 'Learn the fundamentals of Jive dance with easy-to-follow instructions',
-    instructor: 'Dance Master',
-    duration: '4 weeks',
-    students: 0,
-    rating: 5.0,
-    lessons: [
-      {
-        id: 1,
-        title: 'Jive Fundamentals',
-        duration: '10:00',
-        videoUrl: 'https://www.youtube.com/embed/kQ25jdxa_Rs',
-        description: 'Master the basic steps and movements of Jive dance.'
       }
     ]
   }

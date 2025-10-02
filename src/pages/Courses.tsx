@@ -8,57 +8,30 @@ import CourseButton from "@/components/CourseButton";
 const Courses = () => {
   const courses = [
     {
-      id: 1,
+      id: "beginner-jive-basics",
       title: "Beginner Jive Basics",
-      description: "Master the fundamental steps and rhythms of social jive dance. Perfect for complete beginners who want to build a solid foundation.",
+      description: "Learn the fundamentals of Jive dance with easy-to-follow instructions. Perfect for complete beginners who want to build a solid foundation.",
       price: "₹2,499",
       originalPrice: "₹3,499",
-      duration: "2 hours",
-      lessons: "12 lessons",
+      duration: "4 weeks",
+      lessons: "1 lesson",
       level: "Beginner",
       thumbnail: instructorImage,
       features: ["Basic footwork", "Rhythm training", "Partner connection", "Practice exercises"],
-      students: "2,340",
+      students: "1,234",
     },
     {
-      id: 2,
-      title: "Intermediate Swing Moves",
-      description: "Advanced techniques and partner connection skills. Take your jive dancing to the next level with complex moves and styling.",
-      price: "₹3,299",
-      originalPrice: "₹4,499",
-      duration: "3 hours", 
-      lessons: "18 lessons",
-      level: "Intermediate",
-      thumbnail: instructorImage,
-      features: ["Advanced footwork", "Spins and turns", "Leading/Following", "Musicality"],
-      students: "1,876",
-    },
-    {
-      id: 3,
-      title: "Competition Style Jive",
-      description: "Professional competition choreography and advanced techniques. Perfect for dancers ready to compete or perform.",
+      id: "advanced-choreography",
+      title: "Advanced Choreography",
+      description: "Master complex choreography and performance techniques. Perfect for experienced dancers ready to take their skills to the professional level.",
       price: "₹4,199",
       originalPrice: "₹5,999",
-      duration: "4 hours",
-      lessons: "24 lessons",
+      duration: "12 weeks",
+      lessons: "1 lesson",
       level: "Advanced",
       thumbnail: instructorImage,
-      features: ["Competition choreography", "Performance skills", "Advanced styling", "Contest preparation"],
-      students: "892",
-    },
-    {
-      id: 4,
-      title: "Complete Jive Mastery",
-      description: "All three courses bundled together for the ultimate jive learning experience. Save 30% when you buy the complete bundle.",
-      price: "₹6,999",
-      originalPrice: "₹9,997",
-      duration: "9 hours",
-      lessons: "54 lessons",
-      level: "All Levels",
-      thumbnail: instructorImage,
-      features: ["All beginner content", "All intermediate content", "All advanced content", "Bonus masterclasses"],
-      students: "5,643",
-      popular: true,
+      features: ["Complex sequences", "Performance skills", "Advanced styling", "Professional techniques"],
+      students: "567",
     },
   ];
 
@@ -122,15 +95,8 @@ const Courses = () => {
       <section className="py-16 px-6">
         <div className="max-w-6xl mx-auto">
           <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
-            {courses.map((course, index) => (
-              <Card key={course.id} className={`card-hover bg-card border-0 shadow-lg group relative ${course.popular ? 'ring-2 ring-electric' : ''}`}>
-                {course.popular && (
-                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                    <Badge className="bg-electric text-electric-foreground px-4 py-1">
-                      Most Popular
-                    </Badge>
-                  </div>
-                )}
+            {courses.map((course) => (
+              <Card key={course.id} className="card-hover bg-card border-0 shadow-lg group relative">
                 
                 <div className="relative overflow-hidden rounded-t-lg">
                   <img
@@ -191,7 +157,7 @@ const Courses = () => {
                       <span className="text-sm text-muted-foreground line-through">{course.originalPrice}</span>
                     </div>
                     <CourseButton
-                      courseId={course.id.toString()}
+                      courseId={course.id}
                       courseName={course.title}
                       amount={parseFloat(course.price.replace('₹', '').replace(',', ''))}
                       className="group"
