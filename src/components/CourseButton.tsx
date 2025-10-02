@@ -42,7 +42,9 @@ const CourseButton = ({ courseId, courseName, amount, className, children }: Cou
           return;
         }
 
-        setIsPurchased(data && data.length > 0);
+        const purchased = data && data.length > 0;
+        console.log(`Course ${courseId} purchase status:`, purchased);
+        setIsPurchased(purchased);
       } catch (error) {
         console.error('Error:', error);
       } finally {
@@ -52,34 +54,41 @@ const CourseButton = ({ courseId, courseName, amount, className, children }: Cou
 
     checkPurchaseStatus();
 
+    if (!user) return;
+
     // Set up real-time subscription for order changes
     const channel = supabase
-      .channel('order-changes')
+      .channel(`course-${courseId}-${user.id}`)
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
           table: 'orders',
-          filter: `user_id=eq.${user?.id}`
+          filter: `user_id=eq.${user.id}`
         },
         (payload) => {
           console.log('Order change detected:', payload);
-          // Check if this change affects our course
-          const newRecord = payload.new as any;
+          const record = payload.new as any;
+          
+          // Check if this update affects our specific course
           if (
-            newRecord && 
-            newRecord.item_type === 'course' && 
-            newRecord.item_id === courseId &&
-            newRecord.status === 'completed'
+            record && 
+            record.item_type === 'course' && 
+            record.item_id === courseId &&
+            record.status === 'completed'
           ) {
+            console.log(`Course ${courseId} marked as purchased via real-time`);
             setIsPurchased(true);
           }
         }
       )
-      .subscribe();
+      .subscribe((status) => {
+        console.log(`Subscription status for course ${courseId}:`, status);
+      });
 
     return () => {
+      console.log(`Cleaning up subscription for course ${courseId}`);
       supabase.removeChannel(channel);
     };
   }, [user, courseId]);
@@ -97,7 +106,7 @@ const CourseButton = ({ courseId, courseName, amount, className, children }: Cou
       <Button variant="electric" className={className} asChild>
         <Link to={`/course/${courseId}`}>
           <Play className="w-4 h-4 mr-2" />
-          Start Learning
+          ENROLLED - Start Learning
         </Link>
       </Button>
     );
