@@ -122,7 +122,7 @@ const CourseView = () => {
           .eq('item_type', 'course')
           .eq('item_id', courseId)
           .eq('status', 'completed')
-          .maybeSingle();
+          .limit(1);
 
         if (error) {
           console.error('Error checking purchase status:', error);
@@ -135,7 +135,7 @@ const CourseView = () => {
           return;
         }
 
-        setIsPurchased(!!data);
+        setIsPurchased(data && data.length > 0);
       } catch (error) {
         console.error('Error:', error);
         toast({

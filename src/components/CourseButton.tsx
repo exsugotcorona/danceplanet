@@ -34,7 +34,7 @@ const CourseButton = ({ courseId, courseName, amount, className, children }: Cou
           .eq('item_type', 'course')
           .eq('item_id', courseId)
           .eq('status', 'completed')
-          .maybeSingle();
+          .limit(1);
 
         if (error) {
           console.error('Error checking purchase status:', error);
@@ -42,7 +42,7 @@ const CourseButton = ({ courseId, courseName, amount, className, children }: Cou
           return;
         }
 
-        setIsPurchased(!!data);
+        setIsPurchased(data && data.length > 0);
       } catch (error) {
         console.error('Error:', error);
       } finally {
