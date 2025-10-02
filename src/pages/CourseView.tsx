@@ -93,6 +93,24 @@ const courseData = {
         description: 'Learn to master intricate choreographic sequences.'
       }
     ]
+  },
+  'beginner-jive-basics': {
+    id: 'beginner-jive-basics',
+    title: 'Beginner Jive Basics',
+    description: 'Learn the fundamentals of Jive dance with easy-to-follow instructions',
+    instructor: 'Dance Master',
+    duration: '4 weeks',
+    students: 0,
+    rating: 5.0,
+    lessons: [
+      {
+        id: 1,
+        title: 'Jive Fundamentals',
+        duration: '10:00',
+        videoUrl: 'https://www.youtube.com/embed/kQ25jdxa_Rs',
+        description: 'Master the basic steps and movements of Jive dance.'
+      }
+    ]
   }
 };
 

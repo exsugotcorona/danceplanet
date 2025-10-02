@@ -18,6 +18,9 @@ const VideoPlayer = ({ src, title, className }: VideoPlayerProps) => {
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
 
+  // Check if the source is a YouTube video
+  const isYouTube = src.includes('youtube.com') || src.includes('youtu.be');
+
   const togglePlay = () => {
     if (videoRef.current) {
       if (isPlaying) {
@@ -73,6 +76,28 @@ const VideoPlayer = ({ src, title, className }: VideoPlayerProps) => {
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
+
+  if (isYouTube) {
+    return (
+      <Card className={className}>
+        <CardContent className="p-0">
+          <div className="relative">
+            <iframe
+              className="w-full aspect-video bg-black rounded-t-lg"
+              src={src}
+              title={title}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+            />
+          </div>
+          
+          <div className="p-4">
+            <h3 className="font-semibold text-lg">{title}</h3>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className={className}>
