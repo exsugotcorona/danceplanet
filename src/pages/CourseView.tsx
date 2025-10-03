@@ -43,8 +43,27 @@ const courseData = {
         id: 1,
         title: 'Complex Sequences',
         duration: '30:15',
-        videoUrl: 'https://sample-videos.com/zip/10/mp4/SampleVideo_1280x720_1mb.mp4',
+        videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
         description: 'Learn to master intricate choreographic sequences.'
+      }
+    ]
+  },
+  // Legacy course ID support
+  '1': {
+    id: 'beginner-jive-basics',
+    title: 'Beginner Jive Basics',
+    description: 'Learn the fundamentals of Jive dance with easy-to-follow instructions',
+    instructor: 'Dance Master',
+    duration: '4 weeks',
+    students: 1234,
+    rating: 5.0,
+    lessons: [
+      {
+        id: 1,
+        title: 'Jive Fundamentals',
+        duration: '10:00',
+        videoUrl: 'https://www.youtube.com/embed/kQ25jdxa_Rs',
+        description: 'Master the basic steps and movements of Jive dance.'
       }
     ]
   }
@@ -69,14 +88,15 @@ const CourseView = () => {
       }
 
       try {
+        console.log('Checking purchase status for:', { userId: user.id, courseId });
+        
         const { data, error } = await supabase
           .from('orders')
           .select('*')
           .eq('user_id', user.id)
           .eq('item_type', 'course')
           .eq('item_id', courseId)
-          .eq('status', 'completed')
-          .limit(1);
+          .eq('status', 'completed');
 
         if (error) {
           console.error('Error checking purchase status:', error);
@@ -89,7 +109,9 @@ const CourseView = () => {
           return;
         }
 
-        setIsPurchased(data && data.length > 0);
+        const hasPurchased = data && data.length > 0;
+        console.log('Purchase status:', { hasPurchased, ordersCount: data?.length });
+        setIsPurchased(hasPurchased);
       } catch (error) {
         console.error('Error:', error);
         toast({
@@ -103,6 +125,40 @@ const CourseView = () => {
     };
 
     checkPurchaseStatus();
+
+    // Set up real-time subscription
+    if (!user || !courseId) return;
+
+    const channel = supabase
+      .channel(`course-view-${courseId}-${user.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'orders',
+          filter: `user_id=eq.${user.id}`
+        },
+        (payload) => {
+          console.log('Course purchase update:', payload);
+          const record = payload.new as any;
+          
+          if (
+            record && 
+            record.item_type === 'course' && 
+            record.item_id === courseId &&
+            record.status === 'completed'
+          ) {
+            console.log('Course access granted via real-time update');
+            setIsPurchased(true);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [user, courseId, toast]);
 
   const markLessonComplete = (lessonId: number) => {
