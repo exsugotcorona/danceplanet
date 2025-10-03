@@ -68,6 +68,8 @@ const Cart = () => {
       console.log('Payment response:', data);
 
       if (data?.paymentUrl) {
+        // Clear cart before redirecting
+        clearCart();
         window.location.href = data.paymentUrl;
       } else {
         throw new Error('Payment URL not received');

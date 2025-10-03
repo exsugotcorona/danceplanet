@@ -65,6 +65,39 @@ const MyPurchases = () => {
     };
 
     fetchPurchases();
+
+    // Set up real-time subscription for order updates
+    if (user) {
+      const channel = supabase
+        .channel(`orders-${user.id}`)
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'orders',
+            filter: `user_id=eq.${user.id}`
+          },
+          (payload) => {
+            console.log('Order update received:', payload);
+            
+            if (payload.eventType === 'INSERT') {
+              setPurchases(prev => [payload.new as Purchase, ...prev]);
+            } else if (payload.eventType === 'UPDATE') {
+              setPurchases(prev => 
+                prev.map(p => p.id === payload.new.id ? payload.new as Purchase : p)
+              );
+            } else if (payload.eventType === 'DELETE') {
+              setPurchases(prev => prev.filter(p => p.id !== payload.old.id));
+            }
+          }
+        )
+        .subscribe();
+
+      return () => {
+        supabase.removeChannel(channel);
+      };
+    }
   }, [user, toast]);
 
   const getStatusColor = (status: string) => {

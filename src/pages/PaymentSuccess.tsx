@@ -21,21 +21,36 @@ const PaymentSuccess = () => {
 
       console.log('Payment callback received:', { paymentId, paymentRequestId, paymentStatus });
 
+      if (!paymentRequestId) {
+        console.error('Missing payment_request_id');
+        setStatus('failed');
+        return;
+      }
+
       if (paymentStatus === 'Credit') {
         // Update order status to completed
-        if (paymentRequestId && user) {
+        if (user) {
           try {
-            const { error } = await supabase
+            const { data, error } = await supabase
               .from('orders')
               .update({ 
                 status: 'completed',
-                instamojo_payment_id: paymentId 
+                instamojo_payment_id: paymentId,
+                updated_at: new Date().toISOString()
               })
               .eq('instamojo_payment_request_id', paymentRequestId)
-              .eq('user_id', user.id);
+              .eq('user_id', user.id)
+              .select();
 
             if (error) {
               console.error('Error updating order:', error);
+              toast({
+                title: 'Error',
+                description: 'Failed to update order status',
+                variant: 'destructive',
+              });
+            } else {
+              console.log('Order updated successfully:', data);
             }
           } catch (error) {
             console.error('Error:', error);
