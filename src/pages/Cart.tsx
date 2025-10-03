@@ -43,7 +43,7 @@ const Cart = () => {
         .from('profiles')
         .select('*')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
       const itemsDescription = items
         .map(item => `${item.name} (${item.size}) x${item.quantity}`)
@@ -60,10 +60,15 @@ const Cart = () => {
         },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Payment creation error:', error);
+        throw error;
+      }
 
-      if (data?.payment_url) {
-        window.location.href = data.payment_url;
+      console.log('Payment response:', data);
+
+      if (data?.paymentUrl) {
+        window.location.href = data.paymentUrl;
       } else {
         throw new Error('Payment URL not received');
       }
