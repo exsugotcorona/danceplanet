@@ -2,17 +2,52 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Heart, ShoppingCart, ShoppingBag, Star, Truck, Shield, RotateCcw, Zap } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import hoodieImage from "@/assets/hoodie-black.jpg";
 import tshirtImage from "@/assets/tshirt-blue.jpg";
 import AddToCartDialog from "@/components/AddToCartDialog";
+import { supabase } from "@/integrations/supabase/client";
+import { Skeleton } from "@/components/ui/skeleton";
+
+interface Product {
+  id: string;
+  name: string;
+  price: number;
+  original_price: number | null;
+  image: string;
+  category: string;
+  colors: string[];
+  sizes: string[];
+}
 
 const Shop = () => {
-  const [favorites, setFavorites] = useState<number[]>([]);
+  const [favorites, setFavorites] = useState<string[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const toggleFavorite = (id: number) => {
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('products')
+          .select('*')
+          .order('created_at', { ascending: true });
+
+        if (error) throw error;
+        setProducts(data || []);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const toggleFavorite = (id: string) => {
     setFavorites(prev => 
       prev.includes(id) 
         ? prev.filter(fav => fav !== id)
@@ -25,94 +60,12 @@ const Shop = () => {
     setDialogOpen(true);
   };
 
-  const merchandise = [
-    {
-      id: 1,
-      name: "Dance Planet Hoodie",
-      price: "₹4,999",
-      originalPrice: "₹6,499",
-      image: hoodieImage,
-      description: "Premium black hoodie with embroidered Dance Planet logo",
-      category: "Hoodies",
-      sizes: ["S", "M", "L", "XL", "XXL"],
-      colors: ["Black", "Navy", "Gray"],
-      rating: 4.8,
-      reviews: 124,
-      bestseller: true,
-    },
-    {
-      id: 2,
-      name: "Electric Blue Tee",
-      price: "₹2,499",
-      originalPrice: "₹3,199",
-      image: tshirtImage,
-      description: "Comfortable dance t-shirt in electric blue with logo print",
-      category: "T-Shirts",
-      sizes: ["XS", "S", "M", "L", "XL"],
-      colors: ["Electric Blue", "Black", "White"],
-      rating: 4.9,
-      reviews: 89,
-    },
-    {
-      id: 3,
-      name: "Dance Planet Cap",
-      price: "₹1,999",
-      originalPrice: "₹2,499",
-      image: hoodieImage, // placeholder
-      description: "Adjustable cap with embroidered logo, perfect for casual wear",
-      category: "Accessories",
-      sizes: ["One Size"],
-      colors: ["Black", "White", "Navy"],
-      rating: 4.7,
-      reviews: 56,
-    },
-    {
-      id: 4,
-      name: "Dance Crew Sweatshirt",
-      price: "₹3,999",
-      originalPrice: "₹5,199",
-      image: tshirtImage, // placeholder
-      description: "Cozy sweatshirt for dance practice and casual wear",
-      category: "Sweatshirts",
-      sizes: ["S", "M", "L", "XL"],
-      colors: ["Gray", "Black", "Navy"],
-      rating: 4.6,
-      reviews: 73,
-    },
-    {
-      id: 5,
-      name: "Performance Tank Top",
-      price: "₹2,199",
-      originalPrice: "₹2,799",
-      image: hoodieImage, // placeholder
-      description: "Breathable tank top designed for intense dance sessions",
-      category: "Tank Tops",
-      sizes: ["XS", "S", "M", "L"],
-      colors: ["Black", "White", "Electric Blue"],
-      rating: 4.9,
-      reviews: 45,
-    },
-    {
-      id: 6,
-      name: "Dance Planet Tote Bag",
-      price: "₹1,799",
-      originalPrice: "₹2,299",
-      image: tshirtImage, // placeholder
-      description: "Spacious tote bag for carrying dance gear and essentials",
-      category: "Accessories",
-      sizes: ["One Size"],
-      colors: ["Black", "Natural", "Navy"],
-      rating: 4.5,
-      reviews: 32,
-    },
-  ];
-
-  const categories = ["All", "Hoodies", "T-Shirts", "Sweatshirts", "Tank Tops", "Accessories"];
+  const categories = ["All", "clothing", "accessories"];
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   const filteredProducts = selectedCategory === "All" 
-    ? merchandise 
-    : merchandise.filter(item => item.category === selectedCategory);
+    ? products 
+    : products.filter(item => item.category === selectedCategory);
 
   const benefits = [
     {
@@ -187,106 +140,111 @@ const Shop = () => {
       {/* Products Grid */}
       <section className="py-8 px-6">
         <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredProducts.map((item) => (
-              <Card key={item.id} className="card-hover bg-card border-0 shadow-lg group overflow-hidden relative">
-                {item.bestseller && (
-                  <div className="absolute top-4 left-4 z-10">
-                    <Badge className="bg-electric text-electric-foreground">
-                      Bestseller
-                    </Badge>
-                  </div>
-                )}
-                
-                <div className="relative overflow-hidden">
-                  <img
-                    src={item.image}
-                    alt={item.name}
-                    className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
-                  />
-                  <div className="absolute top-4 right-4">
-                    <Button 
-                      size="icon" 
-                      variant="ghost" 
-                      className="bg-white/80 hover:bg-white"
-                      onClick={() => toggleFavorite(item.id)}
-                    >
-                      <Heart 
-                        className={`w-4 h-4 ${
-                          favorites.includes(item.id) ? 'fill-red-500 text-red-500' : ''
-                        }`} 
-                      />
-                    </Button>
-                  </div>
-                </div>
-                
-                <CardContent className="p-6">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Badge variant="outline" className="text-xs">
-                      {item.category}
-                    </Badge>
-                    <div className="flex items-center gap-1">
-                      <Star className="w-3 h-3 fill-electric text-electric" />
-                      <span className="text-xs text-muted-foreground">
-                        {item.rating} ({item.reviews})
-                      </span>
-                    </div>
-                  </div>
-                  
-                  <h3 className="text-lg font-bold mb-2">{item.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-4">{item.description}</p>
-                  
-                  <div className="mb-4">
-                    <div className="flex items-center gap-2 mb-2">
-                      <span className="text-sm font-medium">Colors:</span>
-                    </div>
-                    <div className="flex gap-2">
-                      {item.colors.slice(0, 3).map((color, idx) => (
-                        <div
-                          key={idx}
-                          className="w-6 h-6 rounded-full border-2 border-border"
-                          style={{
-                            backgroundColor: color === "Electric Blue" ? "#0080FF" :
-                                           color === "Black" ? "#000000" :
-                                           color === "White" ? "#FFFFFF" :
-                                           color === "Navy" ? "#1e3a8a" :
-                                           color === "Gray" ? "#6b7280" :
-                                           "#f3f4f6"
-                          }}
+          {isLoading ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[1, 2, 3].map((i) => (
+                <Card key={i} className="bg-card border-0 shadow-lg">
+                  <Skeleton className="w-full h-64" />
+                  <CardContent className="p-6 space-y-4">
+                    <Skeleton className="h-6 w-3/4" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-10 w-32" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {filteredProducts.map((item) => (
+                <Card key={item.id} className="card-hover bg-card border-0 shadow-lg group overflow-hidden relative">
+                  <div className="relative overflow-hidden">
+                    <img
+                      src={item.image}
+                      alt={item.name}
+                      className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                    />
+                    <div className="absolute top-4 right-4">
+                      <Button 
+                        size="icon" 
+                        variant="ghost" 
+                        className="bg-white/80 hover:bg-white"
+                        onClick={() => toggleFavorite(item.id)}
+                      >
+                        <Heart 
+                          className={`w-4 h-4 ${
+                            favorites.includes(item.id) ? 'fill-red-500 text-red-500' : ''
+                          }`} 
                         />
-                      ))}
+                      </Button>
                     </div>
                   </div>
                   
-                  <div className="mb-4">
-                    <span className="text-sm font-medium mb-2 block">Sizes:</span>
-                    <div className="flex gap-2 flex-wrap">
-                      {item.sizes.map((size, idx) => (
-                        <Badge key={idx} variant="outline" className="text-xs">
-                          {size}
-                        </Badge>
-                      ))}
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge variant="outline" className="text-xs capitalize">
+                        {item.category}
+                      </Badge>
                     </div>
-                  </div>
+                    
+                    <h3 className="text-lg font-bold mb-4">{item.name}</h3>
+                    
+                    <div className="mb-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="text-sm font-medium">Colors:</span>
+                      </div>
+                      <div className="flex gap-2">
+                        {item.colors.slice(0, 3).map((color, idx) => (
+                          <div
+                            key={idx}
+                            className="w-6 h-6 rounded-full border-2 border-border"
+                            style={{
+                              backgroundColor: color === "Electric Blue" || color === "Blue" ? "#0080FF" :
+                                             color === "Black" ? "#000000" :
+                                             color === "White" ? "#FFFFFF" :
+                                             color === "Navy" ? "#1e3a8a" :
+                                             color === "Gray" ? "#6b7280" :
+                                             color === "Red" ? "#ef4444" :
+                                             color === "Pink" ? "#ec4899" :
+                                             color === "Clear" ? "#f3f4f6" :
+                                             "#f3f4f6"
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    
+                    <div className="mb-4">
+                      <span className="text-sm font-medium mb-2 block">Sizes:</span>
+                      <div className="flex gap-2 flex-wrap">
+                        {item.sizes.map((size, idx) => (
+                          <Badge key={idx} variant="outline" className="text-xs">
+                            {size}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
 
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="text-xl font-bold text-electric">{item.price}</span>
-                      <span className="text-sm text-muted-foreground line-through">{item.originalPrice}</span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl font-bold text-electric">₹{item.price.toLocaleString()}</span>
+                        {item.original_price && (
+                          <span className="text-sm text-muted-foreground line-through">₹{item.original_price.toLocaleString()}</span>
+                        )}
+                      </div>
+                      <Button
+                        variant="electric"
+                        className="group text-sm px-3 py-1 h-8"
+                        onClick={() => handleAddToCart(item)}
+                      >
+                        <ShoppingCart className="w-4 h-4 mr-1 group-hover:scale-110 transition-transform" />
+                        Add to Cart
+                      </Button>
                     </div>
-                    <Button
-                      variant="electric"
-                      className="group text-sm px-3 py-1 h-8"
-                      onClick={() => handleAddToCart(item)}
-                    >
-                      <ShoppingCart className="w-4 h-4 mr-1 group-hover:scale-110 transition-transform" />
-                      Add to Cart
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

@@ -10,113 +10,109 @@ import { useToast } from '@/hooks/use-toast';
 import VideoPlayer from '@/components/VideoPlayer';
 import { Play, Lock, CheckCircle, Clock, Users, Star } from 'lucide-react';
 
-// Course data - in a real app, this would come from your database
-const courseData = {
-  'beginner-jive-basics': {
-    id: 'beginner-jive-basics',
-    title: 'Beginner Jive Basics',
-    description: 'Learn the fundamentals of Jive dance with easy-to-follow instructions',
-    instructor: 'Dance Master',
-    duration: '4 weeks',
-    students: 1234,
-    rating: 5.0,
-    lessons: [
-      {
-        id: 1,
-        title: 'Jive Fundamentals',
-        duration: '10:00',
-        videoUrl: 'https://www.youtube.com/embed/kQ25jdxa_Rs',
-        description: 'Master the basic steps and movements of Jive dance.'
-      }
-    ]
-  },
-  'advanced-choreography': {
-    id: 'advanced-choreography',
-    title: 'Advanced Choreography',
-    description: 'Master complex choreography and performance techniques',
-    instructor: 'Elena Rodriguez',
-    duration: '12 weeks',
-    students: 567,
-    rating: 4.9,
-    lessons: [
-      {
-        id: 1,
-        title: 'Complex Sequences',
-        duration: '30:15',
-        videoUrl: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
-        description: 'Learn to master intricate choreographic sequences.'
-      }
-    ]
-  },
-  // Legacy course ID support
-  '1': {
-    id: 'beginner-jive-basics',
-    title: 'Beginner Jive Basics',
-    description: 'Learn the fundamentals of Jive dance with easy-to-follow instructions',
-    instructor: 'Dance Master',
-    duration: '4 weeks',
-    students: 1234,
-    rating: 5.0,
-    lessons: [
-      {
-        id: 1,
-        title: 'Jive Fundamentals',
-        duration: '10:00',
-        videoUrl: 'https://www.youtube.com/embed/kQ25jdxa_Rs',
-        description: 'Master the basic steps and movements of Jive dance.'
-      }
-    ]
-  }
-};
+interface Lesson {
+  id: string;
+  title: string;
+  description: string;
+  duration: string;
+  video_url: string;
+  order_index: number;
+}
+
+interface Course {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  instructor: string;
+  duration: string;
+  students: number;
+  rating: number;
+  lessons: Lesson[];
+}
 
 const CourseView = () => {
   const { courseId } = useParams<{ courseId: string }>();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
   const [isPurchased, setIsPurchased] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [currentLesson, setCurrentLesson] = useState(0);
   const [completedLessons, setCompletedLessons] = useState<number[]>([]);
-
-  const course = courseId ? courseData[courseId as keyof typeof courseData] : null;
+  const [course, setCourse] = useState<Course | null>(null);
 
   useEffect(() => {
-    const checkPurchaseStatus = async () => {
-      if (!user || !courseId) {
-        setIsLoading(false);
+    const fetchCourseAndCheckPurchase = async () => {
+      setIsLoading(true);
+      
+      if (authLoading || !courseId) {
         return;
       }
 
       try {
-        console.log('Checking purchase status for:', { userId: user.id, courseId });
-        
-        const { data, error } = await supabase
-          .from('orders')
-          .select('*')
-          .eq('user_id', user.id)
-          .eq('item_type', 'course')
-          .eq('item_id', courseId)
-          .eq('status', 'completed');
+        // Fetch course data with lessons
+        const { data: courseData, error: courseError } = await supabase
+          .from('courses')
+          .select(`
+            *,
+            course_lessons (
+              id,
+              title,
+              description,
+              duration,
+              video_url,
+              order_index
+            )
+          `)
+          .eq('slug', courseId)
+          .single();
 
-        if (error) {
-          console.error('Error checking purchase status:', error);
-          toast({
-            title: "Error",
-            description: "Failed to verify course access",
-            variant: "destructive",
-          });
+        if (courseError) {
+          console.error('Error fetching course:', courseError);
           setIsLoading(false);
           return;
         }
 
-        const hasPurchased = data && data.length > 0;
-        console.log('Purchase status:', { hasPurchased, ordersCount: data?.length });
-        setIsPurchased(hasPurchased);
+        if (courseData) {
+          const formattedCourse: Course = {
+            ...courseData,
+            lessons: (courseData.course_lessons || []).sort((a: Lesson, b: Lesson) => a.order_index - b.order_index)
+          };
+          setCourse(formattedCourse);
+        }
+
+        // Check purchase status if user is logged in
+        if (user) {
+          console.log('Checking purchase status for:', { userId: user.id, courseId });
+          
+          const { data, error } = await supabase
+            .from('orders')
+            .select('*')
+            .eq('user_id', user.id)
+            .eq('item_type', 'course')
+            .eq('item_id', courseId)
+            .eq('status', 'completed');
+
+          if (error) {
+            console.error('Error checking purchase status:', error);
+            toast({
+              title: "Error",
+              description: "Failed to verify course access. Please refresh the page.",
+              variant: "destructive",
+            });
+            setIsLoading(false);
+            return;
+          }
+
+          const hasPurchased = data && data.length > 0;
+          console.log('Purchase status:', { hasPurchased, ordersCount: data?.length });
+          setIsPurchased(hasPurchased);
+        }
       } catch (error) {
         console.error('Error:', error);
         toast({
           title: "Error",
-          description: "Failed to verify course access",
+          description: "An unexpected error occurred.",
           variant: "destructive",
         });
       } finally {
@@ -124,7 +120,7 @@ const CourseView = () => {
       }
     };
 
-    checkPurchaseStatus();
+    fetchCourseAndCheckPurchase();
 
     // Set up real-time subscription
     if (!user || !courseId) return;
@@ -159,11 +155,11 @@ const CourseView = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, courseId, toast]);
+  }, [user, courseId, toast, authLoading]);
 
-  const markLessonComplete = (lessonId: number) => {
-    if (!completedLessons.includes(lessonId)) {
-      setCompletedLessons([...completedLessons, lessonId]);
+  const markLessonComplete = (lessonIndex: number) => {
+    if (!completedLessons.includes(lessonIndex)) {
+      setCompletedLessons([...completedLessons, lessonIndex]);
       toast({
         title: "Lesson Complete!",
         description: "Great job! You've completed this lesson.",
@@ -198,67 +194,68 @@ const CourseView = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 pt-24">
         {/* Course Header */}
         <div className="mb-8">
           <div className="flex items-center gap-2 mb-4">
-            <Badge variant="secondary">Course</Badge>
-            <span className="text-muted-foreground">•</span>
-            <span className="text-muted-foreground">{course.instructor}</span>
+            <Badge variant="secondary">Video Course</Badge>
+            <Badge variant="outline">{course.duration}</Badge>
           </div>
-          <h1 className="text-4xl font-bold mb-2">{course.title}</h1>
-          <p className="text-xl text-muted-foreground mb-4">{course.description}</p>
+          <h1 className="text-4xl font-bold mb-4">{course.title}</h1>
+          <p className="text-muted-foreground text-lg mb-4">{course.description}</p>
           
           <div className="flex items-center gap-6 text-sm text-muted-foreground">
-            <div className="flex items-center gap-1">
-              <Clock className="w-4 h-4" />
-              {course.duration}
-            </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-2">
               <Users className="w-4 h-4" />
-              {course.students} students
+              <span>{course.students.toLocaleString()} students</span>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-2">
               <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-              {course.rating}
+              <span>{course.rating} rating</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span>Instructor: {course.instructor}</span>
             </div>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-          {/* Video Player */}
-          <div className="lg:col-span-3">
-            <VideoPlayer
-              src={currentLessonData.videoUrl}
-              title={`Lesson ${currentLesson + 1}: ${currentLessonData.title}`}
-              className="mb-6"
-            />
-            
-            {/* Lesson Info */}
+        {/* Main Content */}
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Video Player & Lesson Details */}
+          <div className="lg:col-span-2 space-y-6">
+            <Card>
+              <CardContent className="p-0">
+                <VideoPlayer 
+                  src={currentLessonData.video_url}
+                  title={currentLessonData.title}
+                />
+              </CardContent>
+            </Card>
+
             <Card>
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
-                  <span>Lesson {currentLesson + 1}: {currentLessonData.title}</span>
-                  <Badge variant="outline">{currentLessonData.duration}</Badge>
+                  <span>{currentLessonData.title}</span>
+                  <Badge variant="outline">
+                    <Clock className="w-3 h-3 mr-1" />
+                    {currentLessonData.duration}
+                  </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <p className="text-muted-foreground mb-4">{currentLessonData.description}</p>
                 <Button 
-                  onClick={() => markLessonComplete(currentLessonData.id)}
-                  disabled={completedLessons.includes(currentLessonData.id)}
+                  onClick={() => markLessonComplete(currentLesson)}
                   className="w-full"
+                  disabled={completedLessons.includes(currentLesson)}
                 >
-                  {completedLessons.includes(currentLessonData.id) ? (
+                  {completedLessons.includes(currentLesson) ? (
                     <>
                       <CheckCircle className="w-4 h-4 mr-2" />
                       Completed
                     </>
                   ) : (
-                    <>
-                      <CheckCircle className="w-4 h-4 mr-2" />
-                      Mark as Complete
-                    </>
+                    'Mark as Complete'
                   )}
                 </Button>
               </CardContent>
@@ -267,41 +264,37 @@ const CourseView = () => {
 
           {/* Course Navigation */}
           <div className="lg:col-span-1">
-            <Card>
+            <Card className="sticky top-24">
               <CardHeader>
                 <CardTitle>Course Content</CardTitle>
               </CardHeader>
               <CardContent className="p-0">
-                <div className="space-y-0">
+                <div className="max-h-[600px] overflow-y-auto">
                   {course.lessons.map((lesson, index) => (
                     <div key={lesson.id}>
                       <button
                         onClick={() => setCurrentLesson(index)}
-                        className={`w-full text-left p-4 hover:bg-muted/50 transition-colors ${
+                        className={`w-full text-left p-4 hover:bg-muted transition-colors ${
                           currentLesson === index ? 'bg-muted' : ''
                         }`}
                       >
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            {completedLessons.includes(lesson.id) ? (
+                        <div className="flex items-start gap-3">
+                          <div className="flex-shrink-0 mt-1">
+                            {completedLessons.includes(index) ? (
                               <CheckCircle className="w-5 h-5 text-green-500" />
                             ) : currentLesson === index ? (
                               <Play className="w-5 h-5 text-primary" />
                             ) : (
-                              <Lock className="w-5 h-5 text-muted-foreground" />
+                              <div className="w-5 h-5 rounded-full border-2 border-muted-foreground" />
                             )}
-                            <div>
-                              <p className="font-medium text-sm">
-                                Lesson {index + 1}
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                {lesson.title}
-                              </p>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-medium mb-1 text-sm">{lesson.title}</h4>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <Clock className="w-3 h-3" />
+                              <span>{lesson.duration}</span>
                             </div>
                           </div>
-                          <span className="text-xs text-muted-foreground">
-                            {lesson.duration}
-                          </span>
                         </div>
                       </button>
                       {index < course.lessons.length - 1 && <Separator />}

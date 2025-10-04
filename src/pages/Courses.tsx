@@ -4,36 +4,48 @@ import { Badge } from "@/components/ui/badge";
 import { Star, Play, Clock, Users, Zap, BookOpen } from "lucide-react";
 import instructorImage from "@/assets/instructor-1.jpg";
 import CourseButton from "@/components/CourseButton";
+import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
+
+interface Course {
+  id: string;
+  slug: string;
+  title: string;
+  description: string;
+  price: number;
+  duration: string;
+  level: string;
+  thumbnail: string;
+  instructor: string;
+  students: number;
+  rating: number;
+  features: string[];
+}
 
 const Courses = () => {
-  const courses = [
-    {
-      id: "beginner-jive-basics",
-      title: "Beginner Jive Basics",
-      description: "Learn the fundamentals of Jive dance with easy-to-follow instructions. Perfect for complete beginners who want to build a solid foundation.",
-      price: "₹2,499",
-      originalPrice: "₹3,499",
-      duration: "4 weeks",
-      lessons: "1 lesson",
-      level: "Beginner",
-      thumbnail: instructorImage,
-      features: ["Basic footwork", "Rhythm training", "Partner connection", "Practice exercises"],
-      students: "1,234",
-    },
-    {
-      id: "advanced-choreography",
-      title: "Advanced Choreography",
-      description: "Master complex choreography and performance techniques. Perfect for experienced dancers ready to take their skills to the professional level.",
-      price: "₹4,199",
-      originalPrice: "₹5,999",
-      duration: "12 weeks",
-      lessons: "1 lesson",
-      level: "Advanced",
-      thumbnail: instructorImage,
-      features: ["Complex sequences", "Performance skills", "Advanced styling", "Professional techniques"],
-      students: "567",
-    },
-  ];
+  const [courses, setCourses] = useState<Course[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCourses = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('courses')
+          .select('*')
+          .order('created_at', { ascending: true });
+
+        if (error) throw error;
+        setCourses(data || []);
+      } catch (error) {
+        console.error('Error fetching courses:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCourses();
+  }, []);
 
   const benefits = [
     {
@@ -94,8 +106,23 @@ const Courses = () => {
       {/* Courses Grid */}
       <section className="py-16 px-6">
         <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
-            {courses.map((course) => (
+          {isLoading ? (
+            <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
+              {[1, 2].map((i) => (
+                <Card key={i} className="bg-card border-0 shadow-lg">
+                  <Skeleton className="w-full h-48 rounded-t-lg" />
+                  <CardContent className="p-6 space-y-4">
+                    <Skeleton className="h-6 w-3/4" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-10 w-32" />
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
+              {courses.map((course) => (
               <Card key={course.id} className="card-hover bg-card border-0 shadow-lg group relative">
                 
                 <div className="relative overflow-hidden rounded-t-lg">
@@ -124,16 +151,12 @@ const Courses = () => {
                   <div className="flex items-center justify-between mb-4 text-sm text-muted-foreground">
                     <div className="flex items-center gap-4">
                       <span className="flex items-center gap-1">
-                        <BookOpen className="w-4 h-4" />
-                        {course.lessons}
-                      </span>
-                      <span className="flex items-center gap-1">
                         <Users className="w-4 h-4" />
-                        {course.students} students
+                        {course.students.toLocaleString()} students
                       </span>
                     </div>
                     <div className="flex items-center gap-1">
-                      {[...Array(5)].map((_, i) => (
+                      {[...Array(Math.floor(course.rating))].map((_, i) => (
                         <Star key={i} className="w-4 h-4 fill-electric text-electric" />
                       ))}
                     </div>
@@ -153,13 +176,12 @@ const Courses = () => {
 
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-2xl font-bold text-electric">{course.price}</span>
-                      <span className="text-sm text-muted-foreground line-through">{course.originalPrice}</span>
+                      <span className="text-2xl font-bold text-electric">₹{course.price.toLocaleString()}</span>
                     </div>
                     <CourseButton
-                      courseId={course.id}
+                      courseId={course.slug}
                       courseName={course.title}
-                      amount={parseFloat(course.price.replace('₹', '').replace(',', ''))}
+                      amount={Number(course.price)}
                       className="group"
                     >
                       Enroll Now
@@ -168,8 +190,9 @@ const Courses = () => {
                   </div>
                 </CardContent>
               </Card>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

@@ -14,6 +14,98 @@ export type Database = {
   }
   public: {
     Tables: {
+      course_lessons: {
+        Row: {
+          course_id: string
+          created_at: string
+          description: string
+          duration: string
+          id: string
+          order_index: number
+          title: string
+          video_url: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          description: string
+          duration: string
+          id?: string
+          order_index: number
+          title: string
+          video_url: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          description?: string
+          duration?: string
+          id?: string
+          order_index?: number
+          title?: string
+          video_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_lessons_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      courses: {
+        Row: {
+          created_at: string
+          description: string
+          duration: string
+          features: string[]
+          id: string
+          instructor: string
+          level: string
+          price: number
+          rating: number
+          slug: string
+          students: number
+          thumbnail: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          duration: string
+          features?: string[]
+          id?: string
+          instructor: string
+          level: string
+          price: number
+          rating?: number
+          slug: string
+          students?: number
+          thumbnail: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          duration?: string
+          features?: string[]
+          id?: string
+          instructor?: string
+          level?: string
+          price?: number
+          rating?: number
+          slug?: string
+          students?: number
+          thumbnail?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       orders: {
         Row: {
           amount: number
@@ -75,6 +167,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      products: {
+        Row: {
+          category: string
+          colors: string[]
+          created_at: string
+          id: string
+          image: string
+          name: string
+          original_price: number | null
+          price: number
+          sizes: string[]
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          colors?: string[]
+          created_at?: string
+          id?: string
+          image: string
+          name: string
+          original_price?: number | null
+          price: number
+          sizes?: string[]
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          colors?: string[]
+          created_at?: string
+          id?: string
+          image?: string
+          name?: string
+          original_price?: number | null
+          price?: number
+          sizes?: string[]
+          updated_at?: string
+        }
+        Relationships: []
       }
       profiles: {
         Row: {
