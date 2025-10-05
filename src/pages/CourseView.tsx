@@ -50,8 +50,9 @@ const CourseView = () => {
       }
 
       try {
-        // Fetch course data with lessons
-        const { data: courseData, error: courseError } = await supabase
+        // Fetch course data with lessons (support both slug and UUID)
+        const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(courseId);
+        const baseQuery = supabase
           .from('courses')
           .select(`
             *,
@@ -63,9 +64,11 @@ const CourseView = () => {
               video_url,
               order_index
             )
-          `)
-          .eq('slug', courseId)
-          .single();
+          `);
+
+        const { data: courseData, error: courseError } = isUuid
+          ? await baseQuery.eq('id', courseId).single()
+          : await baseQuery.eq('slug', courseId).single();
 
         if (courseError) {
           console.error('Error fetching course:', courseError);
