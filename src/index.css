@@ -105,15 +105,23 @@
   
   /* Typography */
   .text-hero {
-    font-size: clamp(2.5rem, 8vw, 5rem);
+    font-size: clamp(2rem, 8vw, 5rem);
     font-weight: 800;
-    line-height: 0.9;
+    line-height: 1.1;
     letter-spacing: -0.02em;
   }
   
   .text-section {
-    font-size: clamp(1.5rem, 4vw, 2.5rem);
+    font-size: clamp(1.75rem, 5vw, 2.5rem);
     font-weight: 700;
+    line-height: 1.2;
     letter-spacing: -0.01em;
+  }
+  
+  /* Touch Targets - Ensure minimum 44px for accessibility */
+  @media (max-width: 640px) {
+    button, a {
+      min-height: 44px;
+    }
   }
 }

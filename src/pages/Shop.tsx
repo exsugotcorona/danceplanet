@@ -101,17 +101,17 @@ const Shop = () => {
       </section>
 
       {/* Benefits Bar */}
-      <section className="py-8 px-6 border-b">
+      <section className="py-6 sm:py-8 px-4 sm:px-6 border-b">
         <div className="max-w-6xl mx-auto">
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
             {benefits.map((benefit, index) => (
               <div key={index} className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-electric/10 rounded-full flex items-center justify-center">
-                  <benefit.icon className="w-5 h-5 text-electric" />
+                <div className="w-10 h-10 sm:w-12 sm:h-12 bg-electric/10 rounded-full flex items-center justify-center flex-shrink-0">
+                  <benefit.icon className="w-5 h-5 sm:w-6 sm:h-6 text-electric" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-sm">{benefit.title}</h3>
-                  <p className="text-muted-foreground text-sm">{benefit.description}</p>
+                  <h3 className="font-semibold text-sm sm:text-base">{benefit.title}</h3>
+                  <p className="text-muted-foreground text-xs sm:text-sm">{benefit.description}</p>
                 </div>
               </div>
             ))}
@@ -138,14 +138,14 @@ const Shop = () => {
       </section>
 
       {/* Products Grid */}
-      <section className="py-8 px-6">
+      <section className="py-6 sm:py-8 px-4 sm:px-6">
         <div className="max-w-6xl mx-auto">
           {isLoading ? (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
               {[1, 2, 3].map((i) => (
                 <Card key={i} className="bg-card border-0 shadow-lg">
-                  <Skeleton className="w-full h-64" />
-                  <CardContent className="p-6 space-y-4">
+                  <Skeleton className="w-full h-48 sm:h-64" />
+                  <CardContent className="p-4 sm:p-6 space-y-4">
                     <Skeleton className="h-6 w-3/4" />
                     <Skeleton className="h-4 w-full" />
                     <Skeleton className="h-10 w-32" />
@@ -154,21 +154,22 @@ const Shop = () => {
               ))}
             </div>
           ) : (
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 md:gap-8">
               {filteredProducts.map((item) => (
                 <Card key={item.id} className="card-hover bg-card border-0 shadow-lg group overflow-hidden relative">
                   <div className="relative overflow-hidden">
                     <img
                       src={item.image}
-                      alt={item.name}
-                      className="w-full h-64 object-cover group-hover:scale-110 transition-transform duration-500"
+                      alt={`${item.name} - ${item.category}`}
+                      className="w-full h-48 sm:h-64 object-cover group-hover:scale-110 transition-transform duration-500"
                     />
-                    <div className="absolute top-4 right-4">
+                    <div className="absolute top-3 sm:top-4 right-3 sm:right-4">
                       <Button 
                         size="icon" 
                         variant="ghost" 
-                        className="bg-white/80 hover:bg-white"
+                        className="bg-white/80 hover:bg-white w-9 h-9 sm:w-10 sm:h-10"
                         onClick={() => toggleFavorite(item.id)}
+                        aria-label="Add to favorites"
                       >
                         <Heart 
                           className={`w-4 h-4 ${
@@ -179,24 +180,24 @@ const Shop = () => {
                     </div>
                   </div>
                   
-                  <CardContent className="p-6">
+                  <CardContent className="p-4 sm:p-6">
                     <div className="flex items-center gap-2 mb-2">
                       <Badge variant="outline" className="text-xs capitalize">
                         {item.category}
                       </Badge>
                     </div>
                     
-                    <h3 className="text-lg font-bold mb-4">{item.name}</h3>
+                    <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">{item.name}</h3>
                     
-                    <div className="mb-4">
+                    <div className="mb-3 sm:mb-4">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="text-sm font-medium">Colors:</span>
+                        <span className="text-xs sm:text-sm font-medium">Colors:</span>
                       </div>
                       <div className="flex gap-2">
                         {item.colors.slice(0, 3).map((color, idx) => (
                           <div
                             key={idx}
-                            className="w-6 h-6 rounded-full border-2 border-border"
+                            className="w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 border-border"
                             style={{
                               backgroundColor: color === "Electric Blue" || color === "Blue" ? "#0080FF" :
                                              color === "Black" ? "#000000" :
@@ -213,8 +214,8 @@ const Shop = () => {
                       </div>
                     </div>
                     
-                    <div className="mb-4">
-                      <span className="text-sm font-medium mb-2 block">Sizes:</span>
+                    <div className="mb-3 sm:mb-4">
+                      <span className="text-xs sm:text-sm font-medium mb-2 block">Sizes:</span>
                       <div className="flex gap-2 flex-wrap">
                         {item.sizes.map((size, idx) => (
                           <Badge key={idx} variant="outline" className="text-xs">
@@ -224,19 +225,19 @@ const Shop = () => {
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                       <div className="flex items-center gap-2">
-                        <span className="text-xl font-bold text-electric">₹{item.price.toLocaleString()}</span>
+                        <span className="text-lg sm:text-xl font-bold text-electric">₹{item.price.toLocaleString()}</span>
                         {item.original_price && (
-                          <span className="text-sm text-muted-foreground line-through">₹{item.original_price.toLocaleString()}</span>
+                          <span className="text-xs sm:text-sm text-muted-foreground line-through">₹{item.original_price.toLocaleString()}</span>
                         )}
                       </div>
                       <Button
                         variant="electric"
-                        className="group text-sm px-3 py-1 h-8"
+                        className="group text-xs sm:text-sm px-3 py-2 h-9 sm:h-10 w-full sm:w-auto min-h-[44px]"
                         onClick={() => handleAddToCart(item)}
                       >
-                        <ShoppingCart className="w-4 h-4 mr-1 group-hover:scale-110 transition-transform" />
+                        <ShoppingCart className="w-4 h-4 mr-1 sm:mr-2 group-hover:scale-110 transition-transform" />
                         Add to Cart
                       </Button>
                     </div>
