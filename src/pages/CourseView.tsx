@@ -45,9 +45,9 @@ const CourseView = () => {
     const fetchCourseAndCheckPurchase = async () => {
       setIsLoading(true);
       
-      if (authLoading || !courseId) {
-        return;
-      }
+       if (authLoading || !courseId || courseId === ':courseId') {
+         return;
+       }
 
       try {
         // Fetch course data with lessons (support both slug and UUID)
@@ -86,16 +86,17 @@ const CourseView = () => {
 
         // Check purchase status if user is logged in
         if (user && courseData) {
-          // Always check using the actual course UUID from the fetched data
+          // Always check using the actual course UUID and also allow legacy identifiers
           const actualCourseId = courseData.id;
-          console.log('Checking purchase status for:', { userId: user.id, courseId: actualCourseId });
+          const courseSlug = courseData.slug;
+          const courseTitle = courseData.title;
+          console.log('Checking purchase status for:', { userId: user.id, courseId: actualCourseId, courseSlug, courseTitle });
           
           const { data, error } = await supabase
             .from('orders')
             .select('*')
             .eq('user_id', user.id)
             .eq('item_type', 'course')
-            .eq('item_id', actualCourseId)
             .eq('status', 'completed');
 
           if (error) {
@@ -109,8 +110,12 @@ const CourseView = () => {
             return;
           }
 
-          const hasPurchased = data && data.length > 0;
-          console.log('Purchase status:', { hasPurchased, ordersCount: data?.length });
+          const hasPurchased = (data || []).some((o: any) =>
+            o.item_id === actualCourseId ||
+            o.item_id === courseSlug ||
+            o.item_name === courseTitle
+          );
+          console.log('Purchase status:', { hasPurchased, ordersChecked: data?.length });
           setIsPurchased(hasPurchased);
         }
       } catch (error) {

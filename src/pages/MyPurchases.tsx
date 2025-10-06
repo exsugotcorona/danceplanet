@@ -21,9 +21,16 @@ interface Purchase {
   updated_at: string;
 }
 
+interface CourseLite {
+  id: string;
+  slug: string;
+  title: string;
+}
+
 const MyPurchases = () => {
   const [purchases, setPurchases] = useState<Purchase[]>([]);
   const [loading, setLoading] = useState(true);
+  const [courses, setCourses] = useState<CourseLite[]>([]);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -65,6 +72,15 @@ const MyPurchases = () => {
     };
 
     fetchPurchases();
+
+    const fetchCourses = async () => {
+      const { data } = await supabase
+        .from('courses')
+        .select('id,slug,title');
+      setCourses(data || []);
+    };
+
+    fetchCourses();
 
     // Set up real-time subscription for order updates
     if (user) {
@@ -238,12 +254,29 @@ const MyPurchases = () => {
                         {formatAmount(purchase.amount, purchase.currency)}
                       </div>
                       {purchase.status === 'completed' && purchase.item_type === 'course' && (
-                        <Button variant="electric" size="sm" className="w-full" asChild>
-                          <Link to={`/course/${purchase.item_id}`}>
-                            <Play className="w-4 h-4 mr-2" />
-                            View Course
-                          </Link>
-                        </Button>
+                        (() => {
+                          const matchBySlug = courses.find((c) => c.slug === purchase.item_id);
+                          const matchById = courses.find((c) => c.id === purchase.item_id);
+                          const matchByTitle = courses.find((c) => c.title === purchase.item_name);
+                          const targetSlug = matchBySlug?.slug || matchById?.slug || matchByTitle?.slug;
+
+                          if (!targetSlug) {
+                            return (
+                              <Button variant="outline" size="sm" className="w-full" disabled>
+                                Course unavailable
+                              </Button>
+                            );
+                          }
+
+                          return (
+                            <Button variant="electric" size="sm" className="w-full" asChild>
+                              <Link to={`/course/${targetSlug}`}>
+                                <Play className="w-4 h-4 mr-2" />
+                                View Course
+                              </Link>
+                            </Button>
+                          );
+                        })()
                       )}
                     </div>
                   </div>
