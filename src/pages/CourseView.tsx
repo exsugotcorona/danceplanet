@@ -85,15 +85,17 @@ const CourseView = () => {
         }
 
         // Check purchase status if user is logged in
-        if (user) {
-          console.log('Checking purchase status for:', { userId: user.id, courseId });
+        if (user && courseData) {
+          // Always check using the actual course UUID from the fetched data
+          const actualCourseId = courseData.id;
+          console.log('Checking purchase status for:', { userId: user.id, courseId: actualCourseId });
           
           const { data, error } = await supabase
             .from('orders')
             .select('*')
             .eq('user_id', user.id)
             .eq('item_type', 'course')
-            .eq('item_id', courseId)
+            .eq('item_id', actualCourseId)
             .eq('status', 'completed');
 
           if (error) {
@@ -145,8 +147,9 @@ const CourseView = () => {
           if (
             record && 
             record.item_type === 'course' && 
-            record.item_id === courseId &&
-            record.status === 'completed'
+            record.status === 'completed' &&
+            course && 
+            record.item_id === course.id
           ) {
             console.log('Course access granted via real-time update');
             setIsPurchased(true);
