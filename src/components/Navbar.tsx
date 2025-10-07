@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Menu, X, Play, ShoppingBag, ShoppingCart, User, LogOut, Package } from "lucide-react";
 import { cn } from "@/lib/utils";
+import logo from "@/assets/logo.png";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/contexts/CartContext";
@@ -48,9 +49,11 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-electric rounded-lg flex items-center justify-center">
-              <Play className="w-4 h-4 text-white" />
-            </div>
+            <img 
+              src={logo} 
+              alt="Dance Planet Logo" 
+              className="h-10 w-auto"
+            />
             <span className="text-xl font-bold text-foreground">Dance Planet</span>
           </Link>
 

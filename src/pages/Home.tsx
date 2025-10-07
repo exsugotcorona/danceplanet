@@ -3,8 +3,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Play, ShoppingBag, Users, Zap, Star } from "lucide-react";
 import { Link } from "react-router-dom";
-import heroImage from "@/assets/hero-dance.jpg";
-import instructorImage from "@/assets/instructor-1.jpg";
+import heroImage from "@/assets/coverpage.png";
+import instructorImage from "@/assets/Homepage.png";
 import Footer from "@/components/Footer";
 
 const Home = () => {

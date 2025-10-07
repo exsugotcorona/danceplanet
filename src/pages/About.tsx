@@ -3,7 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Users, Heart, Star, Award, Play, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
-import instructorImage from "@/assets/instructor-1.jpg";
+import instructorImage from "@/assets/lillian.jpg";
 
 const About = () => {
   const stats = [
@@ -33,27 +33,6 @@ const About = () => {
       icon: Zap,
       title: "Innovation",
       description: "Constantly improving our teaching methods and platform to deliver the best learning experience."
-    }
-  ];
-
-  const team = [
-    {
-      name: "Sarah Johnson",
-      role: "Founder & Lead Instructor",
-      bio: "Professional dancer with 15+ years of experience in social jive and swing dance.",
-      image: instructorImage,
-    },
-    {
-      name: "Mike Chen",
-      role: "Creative Director",
-      bio: "Former competition dancer specializing in choreography and performance techniques.",
-      image: instructorImage,
-    },
-    {
-      name: "Emma Rodriguez",
-      role: "Community Manager",
-      bio: "Dance enthusiast dedicated to building connections within our dance community.",
-      image: instructorImage,
     }
   ];
 
@@ -149,35 +128,6 @@ const About = () => {
                 </div>
                 <h3 className="text-lg font-bold mb-3">{value.title}</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">{value.description}</p>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Team Section */}
-      <section className="py-16 px-6 bg-secondary/30">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-section mb-4">Meet Our Team</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Passionate dancers and educators dedicated to sharing the joy of social jive with the world.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {team.map((member, index) => (
-              <Card key={index} className="text-center p-6 border-0 shadow-lg card-hover">
-                <div className="relative w-24 h-24 mx-auto mb-4">
-                  <img
-                    src={member.image}
-                    alt={member.name}
-                    className="w-full h-full object-cover rounded-full"
-                  />
-                </div>
-                <h3 className="text-lg font-bold mb-1">{member.name}</h3>
-                <p className="text-electric font-medium mb-3">{member.role}</p>
-                <p className="text-muted-foreground text-sm leading-relaxed">{member.bio}</p>
               </Card>
             ))}
           </div>

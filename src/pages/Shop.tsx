@@ -3,8 +3,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Heart, ShoppingCart, ShoppingBag, Star, Truck, Shield, RotateCcw, Zap } from "lucide-react";
 import { useState, useEffect } from "react";
-import hoodieImage from "@/assets/hoodie-black.jpg";
-import tshirtImage from "@/assets/tshirt-blue.jpg";
 import AddToCartDialog from "@/components/AddToCartDialog";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -60,7 +58,7 @@ const Shop = () => {
     setDialogOpen(true);
   };
 
-  const categories = ["All", "clothing", "accessories"];
+  const categories = ["All", "Clothing", "Accessories"];
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   const filteredProducts = selectedCategory === "All" 
