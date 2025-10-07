@@ -17,6 +17,7 @@ interface CourseButtonProps {
 const CourseButton = ({ courseId, courseName, amount, className, children }: CourseButtonProps) => {
   const [isPurchased, setIsPurchased] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [courseData, setCourseData] = useState<{ id: string; slug: string; title: string } | null>(null);
   const { user } = useAuth();
 
   useEffect(() => {
@@ -27,14 +28,28 @@ const CourseButton = ({ courseId, courseName, amount, className, children }: Cou
       }
 
       try {
+        // First fetch course data to get all identifiers
+        const { data: course, error: courseError } = await supabase
+          .from('courses')
+          .select('id, slug, title')
+          .or(`slug.eq.${courseId},id.eq.${courseId}`)
+          .single();
+
+        if (courseError || !course) {
+          console.error('Error fetching course:', courseError);
+          setIsLoading(false);
+          return;
+        }
+
+        setCourseData(course);
+
+        // Check purchase status using all possible identifiers
         const { data, error } = await supabase
           .from('orders')
           .select('*')
           .eq('user_id', user.id)
           .eq('item_type', 'course')
-          .eq('item_id', courseId)
-          .eq('status', 'completed')
-          .limit(1);
+          .eq('status', 'completed');
 
         if (error) {
           console.error('Error checking purchase status:', error);
@@ -42,7 +57,12 @@ const CourseButton = ({ courseId, courseName, amount, className, children }: Cou
           return;
         }
 
-        const purchased = data && data.length > 0;
+        // Check if any order matches course by id, slug, or title
+        const purchased = (data || []).some((o: any) =>
+          o.item_id === course.id ||
+          o.item_id === course.slug ||
+          o.item_name === course.title
+        );
         console.log(`Course ${courseId} purchase status:`, purchased);
         setIsPurchased(purchased);
       } catch (error) {
@@ -54,7 +74,7 @@ const CourseButton = ({ courseId, courseName, amount, className, children }: Cou
 
     checkPurchaseStatus();
 
-    if (!user) return;
+    if (!user || !courseData) return;
 
     // Set up real-time subscription for order changes
     const channel = supabase
@@ -71,11 +91,13 @@ const CourseButton = ({ courseId, courseName, amount, className, children }: Cou
           console.log('Order change detected:', payload);
           const record = payload.new as any;
           
-          // Check if this update affects our specific course
+          // Check if this update affects our specific course using any identifier
           if (
             record && 
             record.item_type === 'course' && 
-            record.item_id === courseId &&
+            (record.item_id === courseData.id ||
+             record.item_id === courseData.slug ||
+             record.item_name === courseData.title) &&
             record.status === 'completed'
           ) {
             console.log(`Course ${courseId} marked as purchased via real-time`);
@@ -91,7 +113,7 @@ const CourseButton = ({ courseId, courseName, amount, className, children }: Cou
       console.log(`Cleaning up subscription for course ${courseId}`);
       supabase.removeChannel(channel);
     };
-  }, [user, courseId]);
+  }, [user, courseId, courseData]);
 
   if (isLoading) {
     return (
